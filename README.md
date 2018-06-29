@@ -1,0 +1,2 @@
+# jbankster
+JHipster payments demo
