@@ -1,0 +1,35 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="stellarAccount">
+            <h2><span jhiTranslate="jBanksterApp.stellarAccount.detail.title">Stellar Account</span> {{stellarAccount.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="jBanksterApp.stellarAccount.name">Name</span></dt>
+                <dd>
+                    <span>{{stellarAccount.name}}</span>
+                </dd>
+                <dt><span jhiTranslate="jBanksterApp.stellarAccount.accountId">Account Id</span></dt>
+                <dd>
+                    <span>{{stellarAccount.accountId}}</span>
+                </dd>
+                <dt><span jhiTranslate="jBanksterApp.stellarAccount.secretSeed">Secret Seed</span></dt>
+                <dd>
+                    <span>{{stellarAccount.secretSeed}}</span>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/stellar-account', stellarAccount.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

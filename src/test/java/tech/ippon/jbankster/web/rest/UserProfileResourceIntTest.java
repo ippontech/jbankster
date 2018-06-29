@@ -1,0 +1,268 @@
+package tech.ippon.jbankster.web.rest;
+
+import tech.ippon.jbankster.JBanksterApp;
+
+import tech.ippon.jbankster.domain.UserProfile;
+import tech.ippon.jbankster.repository.UserProfileRepository;
+import tech.ippon.jbankster.service.UserProfileService;
+import tech.ippon.jbankster.web.rest.errors.ExceptionTranslator;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+import static tech.ippon.jbankster.web.rest.TestUtil.createFormattingConversionService;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+/**
+ * Test class for the UserProfileResource REST controller.
+ *
+ * @see UserProfileResource
+ */
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = JBanksterApp.class)
+public class UserProfileResourceIntTest {
+
+    private static final String DEFAULT_PHONE = "AAAAAAAAAA";
+    private static final String UPDATED_PHONE = "BBBBBBBBBB";
+
+    @Autowired
+    private UserProfileRepository userProfileRepository;
+    @Mock
+    private UserProfileRepository userProfileRepositoryMock;
+    
+    @Mock
+    private UserProfileService userProfileServiceMock;
+
+    @Autowired
+    private UserProfileService userProfileService;
+
+    @Autowired
+    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
+
+    @Autowired
+    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+
+    @Autowired
+    private ExceptionTranslator exceptionTranslator;
+
+    private MockMvc restUserProfileMockMvc;
+
+    private UserProfile userProfile;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        final UserProfileResource userProfileResource = new UserProfileResource(userProfileService);
+        this.restUserProfileMockMvc = MockMvcBuilders.standaloneSetup(userProfileResource)
+            .setCustomArgumentResolvers(pageableArgumentResolver)
+            .setControllerAdvice(exceptionTranslator)
+            .setConversionService(createFormattingConversionService())
+            .setMessageConverters(jacksonMessageConverter).build();
+    }
+
+    /**
+     * Create an entity for this test.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static UserProfile createEntity() {
+        UserProfile userProfile = new UserProfile()
+            .phone(DEFAULT_PHONE);
+        return userProfile;
+    }
+
+    @Before
+    public void initTest() {
+        userProfile = createEntity();
+    }
+
+    @Test
+    public void createUserProfile() throws Exception {
+        int databaseSizeBeforeCreate = userProfileRepository.findAll().size();
+
+        // Create the UserProfile
+        restUserProfileMockMvc.perform(post("/api/user-profiles")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(userProfile)))
+            .andExpect(status().isCreated());
+
+        // Validate the UserProfile in the database
+        List<UserProfile> userProfileList = userProfileRepository.findAll();
+        assertThat(userProfileList).hasSize(databaseSizeBeforeCreate + 1);
+        UserProfile testUserProfile = userProfileList.get(userProfileList.size() - 1);
+        assertThat(testUserProfile.getPhone()).isEqualTo(DEFAULT_PHONE);
+    }
+
+    @Test
+    public void createUserProfileWithExistingId() throws Exception {
+        int databaseSizeBeforeCreate = userProfileRepository.findAll().size();
+
+        // Create the UserProfile with an existing ID
+        userProfile.setId();
+
+        // An entity with an existing ID cannot be created, so this API call must fail
+        restUserProfileMockMvc.perform(post("/api/user-profiles")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(userProfile)))
+            .andExpect(status().isBadRequest());
+
+        // Validate the UserProfile in the database
+        List<UserProfile> userProfileList = userProfileRepository.findAll();
+        assertThat(userProfileList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    public void getAllUserProfiles() throws Exception {
+        // Initialize the database
+        userProfileRepository.save(userProfile);
+
+        // Get all the userProfileList
+        restUserProfileMockMvc.perform(get("/api/user-profiles?sort=id,desc"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].phone").value(hasItem(DEFAULT_PHONE.toString())));
+    }
+    
+    public void getAllUserProfilesWithEagerRelationshipsIsEnabled() throws Exception {
+        UserProfileResource userProfileResource = new UserProfileResource(userProfileServiceMock);
+        when(userProfileServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        MockMvc restUserProfileMockMvc = MockMvcBuilders.standaloneSetup(userProfileResource)
+            .setCustomArgumentResolvers(pageableArgumentResolver)
+            .setControllerAdvice(exceptionTranslator)
+            .setConversionService(createFormattingConversionService())
+            .setMessageConverters(jacksonMessageConverter).build();
+
+        restUserProfileMockMvc.perform(get("/api/user-profiles?eagerload=true"))
+        .andExpect(status().isOk());
+
+        verify(userProfileServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    public void getAllUserProfilesWithEagerRelationshipsIsNotEnabled() throws Exception {
+        UserProfileResource userProfileResource = new UserProfileResource(userProfileServiceMock);
+            when(userProfileServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+            MockMvc restUserProfileMockMvc = MockMvcBuilders.standaloneSetup(userProfileResource)
+            .setCustomArgumentResolvers(pageableArgumentResolver)
+            .setControllerAdvice(exceptionTranslator)
+            .setConversionService(createFormattingConversionService())
+            .setMessageConverters(jacksonMessageConverter).build();
+
+        restUserProfileMockMvc.perform(get("/api/user-profiles?eagerload=true"))
+        .andExpect(status().isOk());
+
+            verify(userProfileServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @Test
+    public void getUserProfile() throws Exception {
+        // Initialize the database
+        userProfileRepository.save(userProfile);
+
+        // Get the userProfile
+        restUserProfileMockMvc.perform(get("/api/user-profiles/{id}", userProfile.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.phone").value(DEFAULT_PHONE.toString()));
+    }
+    @Test
+    public void getNonExistingUserProfile() throws Exception {
+        // Get the userProfile
+        restUserProfileMockMvc.perform(get("/api/user-profiles/{id}", ))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void updateUserProfile() throws Exception {
+        // Initialize the database
+        userProfileService.save(userProfile);
+
+        int databaseSizeBeforeUpdate = userProfileRepository.findAll().size();
+
+        // Update the userProfile
+        UserProfile updatedUserProfile = userProfileRepository.findById(userProfile.getId()).get();
+        updatedUserProfile
+            .phone(UPDATED_PHONE);
+
+        restUserProfileMockMvc.perform(put("/api/user-profiles")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(updatedUserProfile)))
+            .andExpect(status().isOk());
+
+        // Validate the UserProfile in the database
+        List<UserProfile> userProfileList = userProfileRepository.findAll();
+        assertThat(userProfileList).hasSize(databaseSizeBeforeUpdate);
+        UserProfile testUserProfile = userProfileList.get(userProfileList.size() - 1);
+        assertThat(testUserProfile.getPhone()).isEqualTo(UPDATED_PHONE);
+    }
+
+    @Test
+    public void updateNonExistingUserProfile() throws Exception {
+        int databaseSizeBeforeUpdate = userProfileRepository.findAll().size();
+
+        // Create the UserProfile
+
+        // If the entity doesn't have an ID, it will be created instead of just being updated
+        restUserProfileMockMvc.perform(put("/api/user-profiles")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(userProfile)))
+            .andExpect(status().isBadRequest());
+
+        // Validate the UserProfile in the database
+        List<UserProfile> userProfileList = userProfileRepository.findAll();
+        assertThat(userProfileList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    public void deleteUserProfile() throws Exception {
+        // Initialize the database
+        userProfileService.save(userProfile);
+
+        int databaseSizeBeforeDelete = userProfileRepository.findAll().size();
+
+        // Get the userProfile
+        restUserProfileMockMvc.perform(delete("/api/user-profiles/{id}", userProfile.getId())
+            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
+
+        // Validate the database is empty
+        List<UserProfile> userProfileList = userProfileRepository.findAll();
+        assertThat(userProfileList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    public void equalsVerifier() throws Exception {
+        TestUtil.equalsVerifier(UserProfile.class);
+        UserProfile userProfile1 = new UserProfile();
+        userProfile1.setId();
+        UserProfile userProfile2 = new UserProfile();
+        userProfile2.setId(userProfile1.getId());
+        assertThat(userProfile1).isEqualTo(userProfile2);
+        userProfile2.setId();
+        assertThat(userProfile1).isNotEqualTo(userProfile2);
+        userProfile1.setId(null);
+        assertThat(userProfile1).isNotEqualTo(userProfile2);
+    }
+}

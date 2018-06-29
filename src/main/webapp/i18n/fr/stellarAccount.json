@@ -1,0 +1,25 @@
+
+{
+    "jBanksterApp": {
+        "stellarAccount" : {
+            "home": {
+                "title": "StellarAccounts",
+                "createLabel": "Créer un nouveau Stellar Account",
+                "createOrEditLabel": "Créer ou éditer un Stellar Account"
+            },
+            "created": "Un nouveau Stellar Account a été créé avec l'identifiant {{ param }}",
+            "updated": "Le Stellar Account avec l'identifiant {{ param }} a été mis à jour",
+            "deleted": "Le Stellar Account avec l'identifiant {{ param }} a été supprimé",
+            "delete": {
+                "question": "Etes-vous certain de vouloir supprimer le Stellar Account {{ id }} ?"
+            },
+            "detail": {
+                "title": "Stellar Account"
+            },
+            "name": "Name",
+            "accountId": "Account Id",
+            "secretSeed": "Secret Seed",
+            "userProfile": "User Profile"
+        }
+    }
+}

@@ -1,0 +1,41 @@
+{
+  "entities": [
+    "UserProfile",
+    "StellarAccount"
+  ],
+  "generator-jhipster": {
+    "applicationType": "monolith",
+    "clientPackageManager": "yarn",
+    "databaseType": "mysql",
+    "devDatabaseType": "h2Disk",
+    "enableHibernateCache": true,
+    "enableSwaggerCodegen": false,
+    "enableTranslation": true,
+    "jhiPrefix": "jhi",
+    "languages": [
+      "en",
+      "fr"
+    ],
+    "messageBroker": false,
+    "nativeLanguage": "en",
+    "packageName": "tech.ippon.jbankster",
+    "packageFolder": "tech/ippon/jbankster",
+    "prodDatabaseType": "mysql",
+    "searchEngine": false,
+    "serviceDiscoveryType": false,
+    "skipClient": false,
+    "skipServer": false,
+    "testFrameworks": [],
+    "useSass": false,
+    "websocket": false,
+    "baseName": "jBankster",
+    "jhipsterVersion": "5.0.1",
+    "authenticationType": "jwt",
+    "buildTool": "maven",
+    "cacheProvider": "ehcache",
+    "clientFramework": "angularX",
+    "jwtSecretKey": "04c814ba2ec5cbaf9242d2e23b5171163aebdebf",
+    "serverPort": "8080",
+    "skipUserManagement": false
+  }
+}
