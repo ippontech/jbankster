@@ -22,10 +22,10 @@ export class Home extends React.Component<IHomeProp> {
       <Row>
         <Col md="9">
           <h2>
-            <Translate contentKey="home.title">Welcome, Java Hipster!</Translate>
+            <Translate contentKey="home.title">jBankster</Translate>
           </h2>
           <p className="lead">
-            <Translate contentKey="home.subtitle">This is your homepage</Translate>
+            <Translate contentKey="home.subtitle">jBankster brings fast transactions between all the most widely used fiat and cyrptocurrencies to your fingertips. Powered by JHipster.</Translate>
           </p>
           {account && account.login ? (
             <div>
@@ -58,7 +58,7 @@ export class Home extends React.Component<IHomeProp> {
             </div>
           )}
           <p>
-            <Translate contentKey="home.question">If you have any question on JHipster:</Translate>
+            <Translate contentKey="home.question">Learn more about Stellar</Translate>
           </p>
 
           <ul>
