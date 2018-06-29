@@ -1,6 +1,6 @@
 package tech.ippon.jbankster.web.rest;
 
-import tech.ippon.jbankster.JbanksterApp;
+import tech.ippon.jbankster.JBanksterApp;
 
 import tech.ippon.jbankster.domain.StellarAccount;
 import tech.ippon.jbankster.repository.StellarAccountRepository;
@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @see StellarAccountResource
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JbanksterApp.class)
+@SpringBootTest(classes = JBanksterApp.class)
 public class StellarAccountResourceIntTest {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -52,7 +52,7 @@ public class StellarAccountResourceIntTest {
     @Autowired
     private StellarAccountRepository stellarAccountRepository;
 
-    
+
 
     @Autowired
     private StellarAccountService stellarAccountService;
@@ -193,7 +193,7 @@ public class StellarAccountResourceIntTest {
             .andExpect(jsonPath("$.[*].accountId").value(hasItem(DEFAULT_ACCOUNT_ID.toString())))
             .andExpect(jsonPath("$.[*].secretSeed").value(hasItem(DEFAULT_SECRET_SEED.toString())));
     }
-    
+
 
     @Test
     @Transactional

@@ -1,6 +1,6 @@
 package tech.ippon.jbankster.web.rest;
 
-import tech.ippon.jbankster.JbanksterApp;
+import tech.ippon.jbankster.JBanksterApp;
 import tech.ippon.jbankster.domain.User;
 import tech.ippon.jbankster.repository.UserRepository;
 import tech.ippon.jbankster.security.jwt.TokenProvider;
@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.not;
  * @see UserJWTController
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JbanksterApp.class)
+@SpringBootTest(classes = JBanksterApp.class)
 public class UserJWTControllerIntTest {
 
     @Autowired

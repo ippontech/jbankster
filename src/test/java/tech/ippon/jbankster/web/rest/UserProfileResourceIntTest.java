@@ -1,6 +1,6 @@
 package tech.ippon.jbankster.web.rest;
 
-import tech.ippon.jbankster.JbanksterApp;
+import tech.ippon.jbankster.JBanksterApp;
 
 import tech.ippon.jbankster.domain.UserProfile;
 import tech.ippon.jbankster.repository.UserProfileRepository;
@@ -15,7 +15,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -42,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @see UserProfileResource
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JbanksterApp.class)
+@SpringBootTest(classes = JBanksterApp.class)
 public class UserProfileResourceIntTest {
 
     private static final String DEFAULT_PHONE = "AAAAAAAAAA";
@@ -52,7 +51,7 @@ public class UserProfileResourceIntTest {
     private UserProfileRepository userProfileRepository;
     @Mock
     private UserProfileRepository userProfileRepositoryMock;
-    
+
     @Mock
     private UserProfileService userProfileServiceMock;
 
@@ -153,7 +152,7 @@ public class UserProfileResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(userProfile.getId().intValue())))
             .andExpect(jsonPath("$.[*].phone").value(hasItem(DEFAULT_PHONE.toString())));
     }
-    
+
     public void getAllUserProfilesWithEagerRelationshipsIsEnabled() throws Exception {
         UserProfileResource userProfileResource = new UserProfileResource(userProfileServiceMock);
         when(userProfileServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));

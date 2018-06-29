@@ -1,6 +1,6 @@
 package tech.ippon.jbankster.security;
 
-import tech.ippon.jbankster.JbanksterApp;
+import tech.ippon.jbankster.JBanksterApp;
 import tech.ippon.jbankster.domain.User;
 import tech.ippon.jbankster.repository.UserRepository;
 
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see DomainUserDetailsService
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JbanksterApp.class)
+@SpringBootTest(classes = JBanksterApp.class)
 @Transactional
 public class DomainUserDetailsServiceIntTest {
 
