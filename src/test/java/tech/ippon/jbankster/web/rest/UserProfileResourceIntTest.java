@@ -1,6 +1,6 @@
 package tech.ippon.jbankster.web.rest;
 
-import tech.ippon.jbankster.JBanksterApp;
+import tech.ippon.jbankster.JbanksterApp;
 
 import tech.ippon.jbankster.domain.UserProfile;
 import tech.ippon.jbankster.repository.UserProfileRepository;
@@ -22,7 +22,9 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @see UserProfileResource
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JBanksterApp.class)
+@SpringBootTest(classes = JbanksterApp.class)
 public class UserProfileResourceIntTest {
 
     private static final String DEFAULT_PHONE = "AAAAAAAAAA";
@@ -66,6 +68,9 @@ public class UserProfileResourceIntTest {
     @Autowired
     private ExceptionTranslator exceptionTranslator;
 
+    @Autowired
+    private EntityManager em;
+
     private MockMvc restUserProfileMockMvc;
 
     private UserProfile userProfile;
@@ -87,7 +92,7 @@ public class UserProfileResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static UserProfile createEntity() {
+    public static UserProfile createEntity(EntityManager em) {
         UserProfile userProfile = new UserProfile()
             .phone(DEFAULT_PHONE);
         return userProfile;
@@ -95,10 +100,11 @@ public class UserProfileResourceIntTest {
 
     @Before
     public void initTest() {
-        userProfile = createEntity();
+        userProfile = createEntity(em);
     }
 
     @Test
+    @Transactional
     public void createUserProfile() throws Exception {
         int databaseSizeBeforeCreate = userProfileRepository.findAll().size();
 
@@ -116,11 +122,12 @@ public class UserProfileResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void createUserProfileWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = userProfileRepository.findAll().size();
 
         // Create the UserProfile with an existing ID
-        userProfile.setId();
+        userProfile.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restUserProfileMockMvc.perform(post("/api/user-profiles")
@@ -134,14 +141,16 @@ public class UserProfileResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void getAllUserProfiles() throws Exception {
         // Initialize the database
-        userProfileRepository.save(userProfile);
+        userProfileRepository.saveAndFlush(userProfile);
 
         // Get all the userProfileList
         restUserProfileMockMvc.perform(get("/api/user-profiles?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(userProfile.getId().intValue())))
             .andExpect(jsonPath("$.[*].phone").value(hasItem(DEFAULT_PHONE.toString())));
     }
     
@@ -177,24 +186,28 @@ public class UserProfileResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void getUserProfile() throws Exception {
         // Initialize the database
-        userProfileRepository.save(userProfile);
+        userProfileRepository.saveAndFlush(userProfile);
 
         // Get the userProfile
         restUserProfileMockMvc.perform(get("/api/user-profiles/{id}", userProfile.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.id").value(userProfile.getId().intValue()))
             .andExpect(jsonPath("$.phone").value(DEFAULT_PHONE.toString()));
     }
     @Test
+    @Transactional
     public void getNonExistingUserProfile() throws Exception {
         // Get the userProfile
-        restUserProfileMockMvc.perform(get("/api/user-profiles/{id}", ))
+        restUserProfileMockMvc.perform(get("/api/user-profiles/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
     }
 
     @Test
+    @Transactional
     public void updateUserProfile() throws Exception {
         // Initialize the database
         userProfileService.save(userProfile);
@@ -203,6 +216,8 @@ public class UserProfileResourceIntTest {
 
         // Update the userProfile
         UserProfile updatedUserProfile = userProfileRepository.findById(userProfile.getId()).get();
+        // Disconnect from session so that the updates on updatedUserProfile are not directly saved in db
+        em.detach(updatedUserProfile);
         updatedUserProfile
             .phone(UPDATED_PHONE);
 
@@ -219,6 +234,7 @@ public class UserProfileResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void updateNonExistingUserProfile() throws Exception {
         int databaseSizeBeforeUpdate = userProfileRepository.findAll().size();
 
@@ -236,6 +252,7 @@ public class UserProfileResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void deleteUserProfile() throws Exception {
         // Initialize the database
         userProfileService.save(userProfile);
@@ -253,14 +270,15 @@ public class UserProfileResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(UserProfile.class);
         UserProfile userProfile1 = new UserProfile();
-        userProfile1.setId();
+        userProfile1.setId(1L);
         UserProfile userProfile2 = new UserProfile();
         userProfile2.setId(userProfile1.getId());
         assertThat(userProfile1).isEqualTo(userProfile2);
-        userProfile2.setId();
+        userProfile2.setId(2L);
         assertThat(userProfile1).isNotEqualTo(userProfile2);
         userProfile1.setId(null);
         assertThat(userProfile1).isNotEqualTo(userProfile2);

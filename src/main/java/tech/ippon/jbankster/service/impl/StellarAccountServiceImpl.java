@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Optional;
  * Service Implementation for managing StellarAccount.
  */
 @Service
+@Transactional
 public class StellarAccountServiceImpl implements StellarAccountService {
 
     private final Logger log = LoggerFactory.getLogger(StellarAccountServiceImpl.class);
@@ -42,6 +44,7 @@ public class StellarAccountServiceImpl implements StellarAccountService {
      * @return the list of entities
      */
     @Override
+    @Transactional(readOnly = true)
     public List<StellarAccount> findAll() {
         log.debug("Request to get all StellarAccounts");
         return stellarAccountRepository.findAll();
@@ -55,6 +58,7 @@ public class StellarAccountServiceImpl implements StellarAccountService {
      * @return the entity
      */
     @Override
+    @Transactional(readOnly = true)
     public Optional<StellarAccount> findOne(Long id) {
         log.debug("Request to get StellarAccount : {}", id);
         return stellarAccountRepository.findById(id);

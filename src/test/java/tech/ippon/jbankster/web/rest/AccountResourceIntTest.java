@@ -1,8 +1,10 @@
 package tech.ippon.jbankster.web.rest;
 
 import tech.ippon.jbankster.config.Constants;
-import tech.ippon.jbankster.JBanksterApp;
+import tech.ippon.jbankster.JbanksterApp;
+import tech.ippon.jbankster.domain.Authority;
 import tech.ippon.jbankster.domain.User;
+import tech.ippon.jbankster.repository.AuthorityRepository;
 import tech.ippon.jbankster.repository.UserRepository;
 import tech.ippon.jbankster.security.AuthoritiesConstants;
 import tech.ippon.jbankster.service.MailService;
@@ -28,6 +30,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 
 import java.util.*;
@@ -45,11 +48,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @see AccountResource
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JBanksterApp.class)
+@SpringBootTest(classes = JbanksterApp.class)
 public class AccountResourceIntTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AuthorityRepository authorityRepository;
 
     @Autowired
     private UserService userService;
@@ -113,12 +119,17 @@ public class AccountResourceIntTest {
 
     @Test
     public void testGetExistingAccount() throws Exception {
+        Set<Authority> authorities = new HashSet<>();
+        Authority authority = new Authority();
+        authority.setName(AuthoritiesConstants.ADMIN);
+        authorities.add(authority);
 
         User user = new User();
         user.setLogin("test");
         user.setFirstName("john");
         user.setLastName("doe");
         user.setEmail("john.doe@jhipster.com");
+        user.setImageUrl("http://placehold.it/50x50");
         user.setLangKey("en");
         user.setAuthorities(authorities);
         when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.of(user));
@@ -131,6 +142,7 @@ public class AccountResourceIntTest {
             .andExpect(jsonPath("$.firstName").value("john"))
             .andExpect(jsonPath("$.lastName").value("doe"))
             .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
+            .andExpect(jsonPath("$.imageUrl").value("http://placehold.it/50x50"))
             .andExpect(jsonPath("$.langKey").value("en"))
             .andExpect(jsonPath("$.authorities").value(AuthoritiesConstants.ADMIN));
     }
@@ -145,6 +157,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testRegisterValid() throws Exception {
         ManagedUserVM validUser = new ManagedUserVM();
         validUser.setLogin("joe");
@@ -153,6 +166,7 @@ public class AccountResourceIntTest {
         validUser.setLastName("Shmoe");
         validUser.setEmail("joe@example.com");
         validUser.setActivated(true);
+        validUser.setImageUrl("http://placehold.it/50x50");
         validUser.setLangKey(Constants.DEFAULT_LANGUAGE);
         validUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
         assertThat(userRepository.findOneByLogin("joe").isPresent()).isFalse();
@@ -167,6 +181,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testRegisterInvalidLogin() throws Exception {
         ManagedUserVM invalidUser = new ManagedUserVM();
         invalidUser.setLogin("funky-log!n");// <-- invalid
@@ -175,6 +190,7 @@ public class AccountResourceIntTest {
         invalidUser.setLastName("One");
         invalidUser.setEmail("funky@example.com");
         invalidUser.setActivated(true);
+        invalidUser.setImageUrl("http://placehold.it/50x50");
         invalidUser.setLangKey(Constants.DEFAULT_LANGUAGE);
         invalidUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
@@ -189,6 +205,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testRegisterInvalidEmail() throws Exception {
         ManagedUserVM invalidUser = new ManagedUserVM();
         invalidUser.setLogin("bob");
@@ -197,6 +214,7 @@ public class AccountResourceIntTest {
         invalidUser.setLastName("Green");
         invalidUser.setEmail("invalid");// <-- invalid
         invalidUser.setActivated(true);
+        invalidUser.setImageUrl("http://placehold.it/50x50");
         invalidUser.setLangKey(Constants.DEFAULT_LANGUAGE);
         invalidUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
@@ -211,6 +229,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testRegisterInvalidPassword() throws Exception {
         ManagedUserVM invalidUser = new ManagedUserVM();
         invalidUser.setLogin("bob");
@@ -219,6 +238,7 @@ public class AccountResourceIntTest {
         invalidUser.setLastName("Green");
         invalidUser.setEmail("bob@example.com");
         invalidUser.setActivated(true);
+        invalidUser.setImageUrl("http://placehold.it/50x50");
         invalidUser.setLangKey(Constants.DEFAULT_LANGUAGE);
         invalidUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
@@ -233,6 +253,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testRegisterNullPassword() throws Exception {
         ManagedUserVM invalidUser = new ManagedUserVM();
         invalidUser.setLogin("bob");
@@ -241,6 +262,7 @@ public class AccountResourceIntTest {
         invalidUser.setLastName("Green");
         invalidUser.setEmail("bob@example.com");
         invalidUser.setActivated(true);
+        invalidUser.setImageUrl("http://placehold.it/50x50");
         invalidUser.setLangKey(Constants.DEFAULT_LANGUAGE);
         invalidUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
@@ -255,6 +277,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testRegisterDuplicateLogin() throws Exception {
         // Good
         ManagedUserVM validUser = new ManagedUserVM();
@@ -264,6 +287,7 @@ public class AccountResourceIntTest {
         validUser.setLastName("Something");
         validUser.setEmail("alice@example.com");
         validUser.setActivated(true);
+        validUser.setImageUrl("http://placehold.it/50x50");
         validUser.setLangKey(Constants.DEFAULT_LANGUAGE);
         validUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
@@ -275,7 +299,12 @@ public class AccountResourceIntTest {
         duplicatedUser.setLastName(validUser.getLastName());
         duplicatedUser.setEmail("alicejr@example.com");
         duplicatedUser.setActivated(validUser.isActivated());
+        duplicatedUser.setImageUrl(validUser.getImageUrl());
         duplicatedUser.setLangKey(validUser.getLangKey());
+        duplicatedUser.setCreatedBy(validUser.getCreatedBy());
+        duplicatedUser.setCreatedDate(validUser.getCreatedDate());
+        duplicatedUser.setLastModifiedBy(validUser.getLastModifiedBy());
+        duplicatedUser.setLastModifiedDate(validUser.getLastModifiedDate());
         duplicatedUser.setAuthorities(new HashSet<>(validUser.getAuthorities()));
 
         // Good user
@@ -297,6 +326,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testRegisterDuplicateEmail() throws Exception {
         // Good
         ManagedUserVM validUser = new ManagedUserVM();
@@ -306,6 +336,7 @@ public class AccountResourceIntTest {
         validUser.setLastName("Doe");
         validUser.setEmail("john@example.com");
         validUser.setActivated(true);
+        validUser.setImageUrl("http://placehold.it/50x50");
         validUser.setLangKey(Constants.DEFAULT_LANGUAGE);
         validUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
@@ -317,7 +348,12 @@ public class AccountResourceIntTest {
         duplicatedUser.setLastName(validUser.getLastName());
         duplicatedUser.setEmail(validUser.getEmail());
         duplicatedUser.setActivated(validUser.isActivated());
+        duplicatedUser.setImageUrl(validUser.getImageUrl());
         duplicatedUser.setLangKey(validUser.getLangKey());
+        duplicatedUser.setCreatedBy(validUser.getCreatedBy());
+        duplicatedUser.setCreatedDate(validUser.getCreatedDate());
+        duplicatedUser.setLastModifiedBy(validUser.getLastModifiedBy());
+        duplicatedUser.setLastModifiedDate(validUser.getLastModifiedDate());
         duplicatedUser.setAuthorities(new HashSet<>(validUser.getAuthorities()));
 
         // Good user
@@ -343,7 +379,12 @@ public class AccountResourceIntTest {
         userWithUpperCaseEmail.setLastName(validUser.getLastName());
         userWithUpperCaseEmail.setEmail(validUser.getEmail().toUpperCase());
         userWithUpperCaseEmail.setActivated(validUser.isActivated());
+        userWithUpperCaseEmail.setImageUrl(validUser.getImageUrl());
         userWithUpperCaseEmail.setLangKey(validUser.getLangKey());
+        userWithUpperCaseEmail.setCreatedBy(validUser.getCreatedBy());
+        userWithUpperCaseEmail.setCreatedDate(validUser.getCreatedDate());
+        userWithUpperCaseEmail.setLastModifiedBy(validUser.getLastModifiedBy());
+        userWithUpperCaseEmail.setLastModifiedDate(validUser.getLastModifiedDate());
         userWithUpperCaseEmail.setAuthorities(new HashSet<>(validUser.getAuthorities()));
 
         restMvc.perform(
@@ -357,6 +398,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testRegisterAdminIsIgnored() throws Exception {
         ManagedUserVM validUser = new ManagedUserVM();
         validUser.setLogin("badguy");
@@ -365,6 +407,7 @@ public class AccountResourceIntTest {
         validUser.setLastName("Guy");
         validUser.setEmail("badguy@example.com");
         validUser.setActivated(true);
+        validUser.setImageUrl("http://placehold.it/50x50");
         validUser.setLangKey(Constants.DEFAULT_LANGUAGE);
         validUser.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
@@ -377,10 +420,11 @@ public class AccountResourceIntTest {
         Optional<User> userDup = userRepository.findOneByLogin("badguy");
         assertThat(userDup.isPresent()).isTrue();
         assertThat(userDup.get().getAuthorities()).hasSize(1)
-            .containsExactly();
+            .containsExactly(authorityRepository.findById(AuthoritiesConstants.USER).get());
     }
 
     @Test
+    @Transactional
     public void testActivateAccount() throws Exception {
         final String activationKey = "some activation key";
         User user = new User();
@@ -390,7 +434,7 @@ public class AccountResourceIntTest {
         user.setActivated(false);
         user.setActivationKey(activationKey);
 
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         restMvc.perform(get("/api/activate?key={activationKey}", activationKey))
             .andExpect(status().isOk());
@@ -400,12 +444,14 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testActivateAccountWithWrongKey() throws Exception {
         restMvc.perform(get("/api/activate?key=wrongActivationKey"))
             .andExpect(status().isInternalServerError());
     }
 
     @Test
+    @Transactional
     @WithMockUser("save-account")
     public void testSaveAccount() throws Exception {
         User user = new User();
@@ -414,7 +460,7 @@ public class AccountResourceIntTest {
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
 
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         UserDTO userDTO = new UserDTO();
         userDTO.setLogin("not-used");
@@ -422,6 +468,7 @@ public class AccountResourceIntTest {
         userDTO.setLastName("lastname");
         userDTO.setEmail("save-account@example.com");
         userDTO.setActivated(false);
+        userDTO.setImageUrl("http://placehold.it/50x50");
         userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
         userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
@@ -437,11 +484,13 @@ public class AccountResourceIntTest {
         assertThat(updatedUser.getEmail()).isEqualTo(userDTO.getEmail());
         assertThat(updatedUser.getLangKey()).isEqualTo(userDTO.getLangKey());
         assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
+        assertThat(updatedUser.getImageUrl()).isEqualTo(userDTO.getImageUrl());
         assertThat(updatedUser.getActivated()).isEqualTo(true);
         assertThat(updatedUser.getAuthorities()).isEmpty();
     }
 
     @Test
+    @Transactional
     @WithMockUser("save-invalid-email")
     public void testSaveInvalidEmail() throws Exception {
         User user = new User();
@@ -450,7 +499,7 @@ public class AccountResourceIntTest {
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
 
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         UserDTO userDTO = new UserDTO();
         userDTO.setLogin("not-used");
@@ -458,6 +507,7 @@ public class AccountResourceIntTest {
         userDTO.setLastName("lastname");
         userDTO.setEmail("invalid email");
         userDTO.setActivated(false);
+        userDTO.setImageUrl("http://placehold.it/50x50");
         userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
         userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
@@ -471,6 +521,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     @WithMockUser("save-existing-email")
     public void testSaveExistingEmail() throws Exception {
         User user = new User();
@@ -479,7 +530,7 @@ public class AccountResourceIntTest {
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
 
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         User anotherUser = new User();
         anotherUser.setLogin("save-existing-email2");
@@ -487,7 +538,7 @@ public class AccountResourceIntTest {
         anotherUser.setPassword(RandomStringUtils.random(60));
         anotherUser.setActivated(true);
 
-        userRepository.save(anotherUser);
+        userRepository.saveAndFlush(anotherUser);
 
         UserDTO userDTO = new UserDTO();
         userDTO.setLogin("not-used");
@@ -495,6 +546,7 @@ public class AccountResourceIntTest {
         userDTO.setLastName("lastname");
         userDTO.setEmail("save-existing-email2@example.com");
         userDTO.setActivated(false);
+        userDTO.setImageUrl("http://placehold.it/50x50");
         userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
         userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
@@ -509,6 +561,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     @WithMockUser("save-existing-email-and-login")
     public void testSaveExistingEmailAndLogin() throws Exception {
         User user = new User();
@@ -517,7 +570,7 @@ public class AccountResourceIntTest {
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
 
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         UserDTO userDTO = new UserDTO();
         userDTO.setLogin("not-used");
@@ -525,6 +578,7 @@ public class AccountResourceIntTest {
         userDTO.setLastName("lastname");
         userDTO.setEmail("save-existing-email-and-login@example.com");
         userDTO.setActivated(false);
+        userDTO.setImageUrl("http://placehold.it/50x50");
         userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
         userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
@@ -539,6 +593,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     @WithMockUser("change-password-wrong-existing-password")
     public void testChangePasswordWrongExistingPassword() throws Exception {
         User user = new User();
@@ -546,7 +601,7 @@ public class AccountResourceIntTest {
         user.setPassword(passwordEncoder.encode(currentPassword));
         user.setLogin("change-password-wrong-existing-password");
         user.setEmail("change-password-wrong-existing-password@example.com");
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         restMvc.perform(post("/api/account/change-password").contentType(TestUtil.APPLICATION_JSON_UTF8)
         .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO("1"+currentPassword, "new password"))))
@@ -558,6 +613,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     @WithMockUser("change-password")
     public void testChangePassword() throws Exception {
         User user = new User();
@@ -565,7 +621,7 @@ public class AccountResourceIntTest {
         user.setPassword(passwordEncoder.encode(currentPassword));
         user.setLogin("change-password");
         user.setEmail("change-password@example.com");
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         restMvc.perform(post("/api/account/change-password").contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO(currentPassword, "new password"))))
@@ -576,6 +632,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     @WithMockUser("change-password-too-small")
     public void testChangePasswordTooSmall() throws Exception {
         User user = new User();
@@ -583,7 +640,7 @@ public class AccountResourceIntTest {
         user.setPassword(passwordEncoder.encode(currentPassword));
         user.setLogin("change-password-too-small");
         user.setEmail("change-password-too-small@example.com");
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         restMvc.perform(post("/api/account/change-password").contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO(currentPassword, "new"))))
@@ -594,6 +651,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     @WithMockUser("change-password-too-long")
     public void testChangePasswordTooLong() throws Exception {
         User user = new User();
@@ -601,7 +659,7 @@ public class AccountResourceIntTest {
         user.setPassword(passwordEncoder.encode(currentPassword));
         user.setLogin("change-password-too-long");
         user.setEmail("change-password-too-long@example.com");
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         restMvc.perform(post("/api/account/change-password").contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO(currentPassword, RandomStringUtils.random(101)))))
@@ -612,13 +670,14 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     @WithMockUser("change-password-empty")
     public void testChangePasswordEmpty() throws Exception {
         User user = new User();
         user.setPassword(RandomStringUtils.random(60));
         user.setLogin("change-password-empty");
         user.setEmail("change-password-empty@example.com");
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         restMvc.perform(post("/api/account/change-password").content(RandomStringUtils.random(0)))
             .andExpect(status().isBadRequest());
@@ -628,13 +687,14 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testRequestPasswordReset() throws Exception {
         User user = new User();
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
         user.setLogin("password-reset");
         user.setEmail("password-reset@example.com");
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         restMvc.perform(post("/api/account/reset-password/init")
             .content("password-reset@example.com"))
@@ -642,13 +702,14 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testRequestPasswordResetUpperCaseEmail() throws Exception {
         User user = new User();
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
         user.setLogin("password-reset");
         user.setEmail("password-reset@example.com");
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         restMvc.perform(post("/api/account/reset-password/init")
             .content("password-reset@EXAMPLE.COM"))
@@ -664,6 +725,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testFinishPasswordReset() throws Exception {
         User user = new User();
         user.setPassword(RandomStringUtils.random(60));
@@ -671,7 +733,7 @@ public class AccountResourceIntTest {
         user.setEmail("finish-password-reset@example.com");
         user.setResetDate(Instant.now().plusSeconds(60));
         user.setResetKey("reset key");
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         KeyAndPasswordVM keyAndPassword = new KeyAndPasswordVM();
         keyAndPassword.setKey(user.getResetKey());
@@ -688,6 +750,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void testFinishPasswordResetTooSmall() throws Exception {
         User user = new User();
         user.setPassword(RandomStringUtils.random(60));
@@ -695,7 +758,7 @@ public class AccountResourceIntTest {
         user.setEmail("finish-password-reset-too-small@example.com");
         user.setResetDate(Instant.now().plusSeconds(60));
         user.setResetKey("reset key too small");
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         KeyAndPasswordVM keyAndPassword = new KeyAndPasswordVM();
         keyAndPassword.setKey(user.getResetKey());
@@ -713,6 +776,7 @@ public class AccountResourceIntTest {
 
 
     @Test
+    @Transactional
     public void testFinishPasswordResetWrongKey() throws Exception {
         KeyAndPasswordVM keyAndPassword = new KeyAndPasswordVM();
         keyAndPassword.setKey("wrong reset key");

@@ -11,15 +11,15 @@ public final class HeaderUtil {
 
     private static final Logger log = LoggerFactory.getLogger(HeaderUtil.class);
 
-    private static final String APPLICATION_NAME = "jBanksterApp";
+    private static final String APPLICATION_NAME = "jbanksterApp";
 
     private HeaderUtil() {
     }
 
     public static HttpHeaders createAlert(String message, String param) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-jBanksterApp-alert", message);
-        headers.add("X-jBanksterApp-params", param);
+        headers.add("X-jbanksterApp-alert", message);
+        headers.add("X-jbanksterApp-params", param);
         return headers;
     }
 
@@ -38,8 +38,8 @@ public final class HeaderUtil {
     public static HttpHeaders createFailureAlert(String entityName, String errorKey, String defaultMessage) {
         log.error("Entity processing failed, {}", defaultMessage);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-jBanksterApp-error", "error." + errorKey);
-        headers.add("X-jBanksterApp-params", entityName);
+        headers.add("X-jbanksterApp-error", "error." + errorKey);
+        headers.add("X-jbanksterApp-params", entityName);
         return headers;
     }
 }

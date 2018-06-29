@@ -16,7 +16,7 @@
             "ownerSide": true
         }
     ],
-    "changelogDate": "20180629135253",
+    "changelogDate": "20180629145043",
     "entityTableName": "user_profile",
     "dto": "no",
     "pagination": "no",
@@ -24,7 +24,5 @@
     "jpaMetamodelFiltering": false,
     "fluentMethods": true,
     "clientRootFolder": "",
-    "applications": [
-        "jBankster"
-    ]
+    "applications": "*"
 }

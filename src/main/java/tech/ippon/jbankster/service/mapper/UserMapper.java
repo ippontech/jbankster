@@ -1,5 +1,6 @@
 package tech.ippon.jbankster.service.mapper;
 
+import tech.ippon.jbankster.domain.Authority;
 import tech.ippon.jbankster.domain.User;
 import tech.ippon.jbankster.service.dto.UserDTO;
 
@@ -41,6 +42,10 @@ public class UserMapper {
             user.setImageUrl(userDTO.getImageUrl());
             user.setActivated(userDTO.isActivated());
             user.setLangKey(userDTO.getLangKey());
+            Set<Authority> authorities = this.authoritiesFromStrings(userDTO.getAuthorities());
+            if (authorities != null) {
+                user.setAuthorities(authorities);
+            }
             return user;
         }
     }
@@ -59,5 +64,13 @@ public class UserMapper {
         User user = new User();
         user.setId(id);
         return user;
+    }
+
+    public Set<Authority> authoritiesFromStrings(Set<String> strings) {
+        return strings.stream().map(string -> {
+            Authority auth = new Authority();
+            auth.setName(string);
+            return auth;
+        }).collect(Collectors.toSet());
     }
 }

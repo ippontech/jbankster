@@ -1,27 +1,17 @@
 
-application {
-  config {
-    baseName jBankster,
-    databaseType mysql,
-    applicationType monolith,
-    packageName tech.ippon.jbankster,
-  }
-  entities *
-}
-
 
 entity UserProfile {
-	phone String
+    phone String
 }
 
 entity StellarAccount {
-	name String required,
+    name String required,
     accountId String required,
     secretSeed String
 }
 
 relationship ManyToMany {
-	UserProfile{stellarAccount} to StellarAccount{userProfile}
+    UserProfile{stellarAccount} to StellarAccount{userProfile}
 }
 
 // Set service options to all except few

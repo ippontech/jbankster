@@ -29,7 +29,7 @@
             "otherEntityRelationshipName": "stellarAccount"
         }
     ],
-    "changelogDate": "20180629135254",
+    "changelogDate": "20180629145044",
     "entityTableName": "stellar_account",
     "dto": "no",
     "pagination": "no",
@@ -37,7 +37,5 @@
     "jpaMetamodelFiltering": false,
     "fluentMethods": true,
     "clientRootFolder": "",
-    "applications": [
-        "jBankster"
-    ]
+    "applications": "*"
 }

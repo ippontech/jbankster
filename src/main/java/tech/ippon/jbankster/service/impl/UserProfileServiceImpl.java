@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Optional;
  * Service Implementation for managing UserProfile.
  */
 @Service
+@Transactional
 public class UserProfileServiceImpl implements UserProfileService {
 
     private final Logger log = LoggerFactory.getLogger(UserProfileServiceImpl.class);
@@ -44,6 +46,7 @@ public class UserProfileServiceImpl implements UserProfileService {
      * @return the list of entities
      */
     @Override
+    @Transactional(readOnly = true)
     public List<UserProfile> findAll() {
         log.debug("Request to get all UserProfiles");
         return userProfileRepository.findAllWithEagerRelationships();
@@ -66,6 +69,7 @@ public class UserProfileServiceImpl implements UserProfileService {
      * @return the entity
      */
     @Override
+    @Transactional(readOnly = true)
     public Optional<UserProfile> findOne(Long id) {
         log.debug("Request to get UserProfile : {}", id);
         return userProfileRepository.findOneWithEagerRelationships(id);

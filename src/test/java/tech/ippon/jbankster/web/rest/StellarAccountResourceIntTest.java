@@ -1,6 +1,6 @@
 package tech.ippon.jbankster.web.rest;
 
-import tech.ippon.jbankster.JBanksterApp;
+import tech.ippon.jbankster.JbanksterApp;
 
 import tech.ippon.jbankster.domain.StellarAccount;
 import tech.ippon.jbankster.repository.StellarAccountRepository;
@@ -19,7 +19,9 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 
@@ -35,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @see StellarAccountResource
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JBanksterApp.class)
+@SpringBootTest(classes = JbanksterApp.class)
 public class StellarAccountResourceIntTest {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -64,6 +66,9 @@ public class StellarAccountResourceIntTest {
     @Autowired
     private ExceptionTranslator exceptionTranslator;
 
+    @Autowired
+    private EntityManager em;
+
     private MockMvc restStellarAccountMockMvc;
 
     private StellarAccount stellarAccount;
@@ -85,7 +90,7 @@ public class StellarAccountResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static StellarAccount createEntity() {
+    public static StellarAccount createEntity(EntityManager em) {
         StellarAccount stellarAccount = new StellarAccount()
             .name(DEFAULT_NAME)
             .accountId(DEFAULT_ACCOUNT_ID)
@@ -95,10 +100,11 @@ public class StellarAccountResourceIntTest {
 
     @Before
     public void initTest() {
-        stellarAccount = createEntity();
+        stellarAccount = createEntity(em);
     }
 
     @Test
+    @Transactional
     public void createStellarAccount() throws Exception {
         int databaseSizeBeforeCreate = stellarAccountRepository.findAll().size();
 
@@ -118,11 +124,12 @@ public class StellarAccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void createStellarAccountWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = stellarAccountRepository.findAll().size();
 
         // Create the StellarAccount with an existing ID
-        stellarAccount.setId();
+        stellarAccount.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restStellarAccountMockMvc.perform(post("/api/stellar-accounts")
@@ -136,6 +143,7 @@ public class StellarAccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void checkNameIsRequired() throws Exception {
         int databaseSizeBeforeTest = stellarAccountRepository.findAll().size();
         // set the field null
@@ -153,6 +161,7 @@ public class StellarAccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void checkAccountIdIsRequired() throws Exception {
         int databaseSizeBeforeTest = stellarAccountRepository.findAll().size();
         // set the field null
@@ -170,14 +179,16 @@ public class StellarAccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void getAllStellarAccounts() throws Exception {
         // Initialize the database
-        stellarAccountRepository.save(stellarAccount);
+        stellarAccountRepository.saveAndFlush(stellarAccount);
 
         // Get all the stellarAccountList
         restStellarAccountMockMvc.perform(get("/api/stellar-accounts?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(stellarAccount.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].accountId").value(hasItem(DEFAULT_ACCOUNT_ID.toString())))
             .andExpect(jsonPath("$.[*].secretSeed").value(hasItem(DEFAULT_SECRET_SEED.toString())));
@@ -185,26 +196,30 @@ public class StellarAccountResourceIntTest {
     
 
     @Test
+    @Transactional
     public void getStellarAccount() throws Exception {
         // Initialize the database
-        stellarAccountRepository.save(stellarAccount);
+        stellarAccountRepository.saveAndFlush(stellarAccount);
 
         // Get the stellarAccount
         restStellarAccountMockMvc.perform(get("/api/stellar-accounts/{id}", stellarAccount.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.id").value(stellarAccount.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
             .andExpect(jsonPath("$.accountId").value(DEFAULT_ACCOUNT_ID.toString()))
             .andExpect(jsonPath("$.secretSeed").value(DEFAULT_SECRET_SEED.toString()));
     }
     @Test
+    @Transactional
     public void getNonExistingStellarAccount() throws Exception {
         // Get the stellarAccount
-        restStellarAccountMockMvc.perform(get("/api/stellar-accounts/{id}", ))
+        restStellarAccountMockMvc.perform(get("/api/stellar-accounts/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
     }
 
     @Test
+    @Transactional
     public void updateStellarAccount() throws Exception {
         // Initialize the database
         stellarAccountService.save(stellarAccount);
@@ -213,6 +228,8 @@ public class StellarAccountResourceIntTest {
 
         // Update the stellarAccount
         StellarAccount updatedStellarAccount = stellarAccountRepository.findById(stellarAccount.getId()).get();
+        // Disconnect from session so that the updates on updatedStellarAccount are not directly saved in db
+        em.detach(updatedStellarAccount);
         updatedStellarAccount
             .name(UPDATED_NAME)
             .accountId(UPDATED_ACCOUNT_ID)
@@ -233,6 +250,7 @@ public class StellarAccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void updateNonExistingStellarAccount() throws Exception {
         int databaseSizeBeforeUpdate = stellarAccountRepository.findAll().size();
 
@@ -250,6 +268,7 @@ public class StellarAccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void deleteStellarAccount() throws Exception {
         // Initialize the database
         stellarAccountService.save(stellarAccount);
@@ -267,14 +286,15 @@ public class StellarAccountResourceIntTest {
     }
 
     @Test
+    @Transactional
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(StellarAccount.class);
         StellarAccount stellarAccount1 = new StellarAccount();
-        stellarAccount1.setId();
+        stellarAccount1.setId(1L);
         StellarAccount stellarAccount2 = new StellarAccount();
         stellarAccount2.setId(stellarAccount1.getId());
         assertThat(stellarAccount1).isEqualTo(stellarAccount2);
-        stellarAccount2.setId();
+        stellarAccount2.setId(2L);
         assertThat(stellarAccount1).isNotEqualTo(stellarAccount2);
         stellarAccount1.setId(null);
         assertThat(stellarAccount1).isNotEqualTo(stellarAccount2);

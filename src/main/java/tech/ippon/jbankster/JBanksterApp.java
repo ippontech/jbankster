@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.Environment;
 
@@ -18,19 +19,19 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @SpringBootApplication
-@EnableConfigurationProperties({ApplicationProperties.class})
-public class JBanksterApp {
+@EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
+public class JbanksterApp {
 
-    private static final Logger log = LoggerFactory.getLogger(JBanksterApp.class);
+    private static final Logger log = LoggerFactory.getLogger(JbanksterApp.class);
 
     private final Environment env;
 
-    public JBanksterApp(Environment env) {
+    public JbanksterApp(Environment env) {
         this.env = env;
     }
 
     /**
-     * Initializes jBankster.
+     * Initializes jbankster.
      * <p>
      * Spring profiles can be configured with a program arguments --spring.profiles.active=your-active-profile
      * <p>
@@ -55,7 +56,7 @@ public class JBanksterApp {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(JBanksterApp.class);
+        SpringApplication app = new SpringApplication(JbanksterApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
         String protocol = "http";

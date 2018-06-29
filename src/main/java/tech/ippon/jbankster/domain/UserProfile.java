@@ -3,6 +3,8 @@ package tech.ippon.jbankster.domain;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import javax.persistence.*;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,13 +13,18 @@ import java.util.Objects;
 /**
  * A UserProfile.
  */
+@Entity
+@Table(name = "user_profile")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class UserProfile implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "phone")
     private String phone;
 
     @ManyToMany
@@ -28,11 +35,11 @@ public class UserProfile implements Serializable {
     private Set<StellarAccount> stellarAccounts = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public  getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId( id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

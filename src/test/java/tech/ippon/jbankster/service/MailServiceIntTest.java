@@ -1,7 +1,7 @@
 package tech.ippon.jbankster.service;
 import tech.ippon.jbankster.config.Constants;
 
-import tech.ippon.jbankster.JBanksterApp;
+import tech.ippon.jbankster.JbanksterApp;
 import tech.ippon.jbankster.domain.User;
 import io.github.jhipster.config.JHipsterProperties;
 import org.junit.Before;
@@ -30,7 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JBanksterApp.class)
+@SpringBootTest(classes = JbanksterApp.class)
 public class MailServiceIntTest {
 
     @Autowired

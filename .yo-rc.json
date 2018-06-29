@@ -1,41 +1,38 @@
 {
-  "entities": [
-    "UserProfile",
-    "StellarAccount"
-  ],
   "generator-jhipster": {
+    "promptValues": {
+      "packageName": "tech.ippon.jbankster",
+      "nativeLanguage": "en"
+    },
+    "jhipsterVersion": "5.0.1",
     "applicationType": "monolith",
-    "clientPackageManager": "yarn",
-    "databaseType": "mysql",
-    "devDatabaseType": "h2Disk",
+    "baseName": "jbankster",
+    "packageName": "tech.ippon.jbankster",
+    "packageFolder": "tech/ippon/jbankster",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "ehcache",
     "enableHibernateCache": true,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "prodDatabaseType": "mysql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
     "enableSwaggerCodegen": false,
-    "enableTranslation": true,
+    "jwtSecretKey": "72c24fd0e2b545291fed63e47ddc70d0470afed8",
+    "clientFramework": "react",
+    "useSass": false,
+    "clientPackageManager": "yarn",
+    "testFrameworks": [],
     "jhiPrefix": "jhi",
+    "enableTranslation": true,
+    "nativeLanguage": "en",
     "languages": [
       "en",
       "fr"
-    ],
-    "messageBroker": false,
-    "nativeLanguage": "en",
-    "packageName": "tech.ippon.jbankster",
-    "packageFolder": "tech/ippon/jbankster",
-    "prodDatabaseType": "mysql",
-    "searchEngine": false,
-    "serviceDiscoveryType": false,
-    "skipClient": false,
-    "skipServer": false,
-    "testFrameworks": [],
-    "useSass": false,
-    "websocket": false,
-    "baseName": "jBankster",
-    "jhipsterVersion": "5.0.1",
-    "authenticationType": "jwt",
-    "buildTool": "maven",
-    "cacheProvider": "ehcache",
-    "clientFramework": "angularX",
-    "jwtSecretKey": "04c814ba2ec5cbaf9242d2e23b5171163aebdebf",
-    "serverPort": "8080",
-    "skipUserManagement": false
+    ]
   }
 }
