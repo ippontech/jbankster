@@ -1,6 +1,6 @@
 package tech.ippon.jbankster.repository;
 
-import tech.ippon.jbankster.JbanksterApp;
+import tech.ippon.jbankster.JBanksterApp;
 import tech.ippon.jbankster.config.Constants;
 import tech.ippon.jbankster.config.audit.AuditEventConverter;
 import tech.ippon.jbankster.domain.PersistentAuditEvent;
@@ -31,7 +31,7 @@ import static tech.ippon.jbankster.repository.CustomAuditEventRepository.EVENT_D
  * @see CustomAuditEventRepository
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JbanksterApp.class)
+@SpringBootTest(classes = JBanksterApp.class)
 @Transactional
 public class CustomAuditEventRepositoryIntTest {
 

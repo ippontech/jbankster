@@ -20,13 +20,13 @@ import java.util.Collection;
 
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
-public class JbanksterApp {
+public class JBanksterApp {
 
-    private static final Logger log = LoggerFactory.getLogger(JbanksterApp.class);
+    private static final Logger log = LoggerFactory.getLogger(JBanksterApp.class);
 
     private final Environment env;
 
-    public JbanksterApp(Environment env) {
+    public JBanksterApp(Environment env) {
         this.env = env;
     }
 
@@ -56,7 +56,7 @@ public class JbanksterApp {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(JbanksterApp.class);
+        SpringApplication app = new SpringApplication(JBanksterApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
         String protocol = "http";

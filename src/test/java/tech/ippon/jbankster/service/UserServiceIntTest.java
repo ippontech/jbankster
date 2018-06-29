@@ -1,6 +1,6 @@
 package tech.ippon.jbankster.service;
 
-import tech.ippon.jbankster.JbanksterApp;
+import tech.ippon.jbankster.JBanksterApp;
 import tech.ippon.jbankster.config.Constants;
 import tech.ippon.jbankster.domain.User;
 import tech.ippon.jbankster.repository.UserRepository;
@@ -26,7 +26,6 @@ import java.time.temporal.ChronoUnit;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -37,7 +36,7 @@ import static org.mockito.Mockito.when;
  * @see UserService
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JbanksterApp.class)
+@SpringBootTest(classes = JBanksterApp.class)
 @Transactional
 public class UserServiceIntTest {
 

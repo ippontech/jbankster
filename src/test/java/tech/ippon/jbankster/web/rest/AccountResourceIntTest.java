@@ -1,7 +1,7 @@
 package tech.ippon.jbankster.web.rest;
 
 import tech.ippon.jbankster.config.Constants;
-import tech.ippon.jbankster.JbanksterApp;
+import tech.ippon.jbankster.JBanksterApp;
 import tech.ippon.jbankster.domain.Authority;
 import tech.ippon.jbankster.domain.User;
 import tech.ippon.jbankster.repository.AuthorityRepository;
@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @see AccountResource
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JbanksterApp.class)
+@SpringBootTest(classes = JBanksterApp.class)
 public class AccountResourceIntTest {
 
     @Autowired
