@@ -16,12 +16,12 @@
     "typeRoots": [
       "node_modules/@types"
     ],
-    "types": ["webpack-env"],
+    "types": ["webpack-env", "stellar-sdk"],
     "allowJs": true,
     "checkJs": false,
     "baseUrl": "./",
     "paths": {
-        "app/*": ["src/main/webapp/app/*"]
+        "app/*": ["src/main/webapp/app/*"],
     },
     "importHelpers": true
   },
