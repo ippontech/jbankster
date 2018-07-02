@@ -1,0 +1,5 @@
+{
+	"server": {
+		"stellar": "https://horizon-testnet.stellar.org"
+	}
+}

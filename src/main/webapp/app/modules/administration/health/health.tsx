@@ -5,6 +5,7 @@ import { Table, Badge, Col, Row, Button } from 'reactstrap';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
 import StellarSdk from 'stellar-sdk';
+import { STELLAR_SERVER } from '../../../config/constants';
 
 import { IRootState } from 'app/shared/reducers';
 import { systemHealth } from '../administration.reducer';
@@ -58,7 +59,7 @@ export class HealthPage extends React.Component<IHealthPageProps, IHealthPageSta
     const { health, isFetching } = this.props;
     const data = (health || {}).details || {};
     const stellarServerName = 'stellarServer';
-    const stellarServer = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+    const stellarServer = new StellarSdk.Server(STELLAR_SERVER);
     const stellarServerStatus = stellarServer ? 'UP' : 'DOWN';
     return (
       <div>
