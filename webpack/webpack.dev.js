@@ -9,6 +9,7 @@ const utils = require('./utils.js');
 const commonConfig = require('./webpack.common.js');
 
 const ENV = 'development';
+const devConfig = require('../application-dev.json');
 
 module.exports = webpackMerge(commonConfig({ env: ENV }), {
   devtool: 'cheap-module-source-map', // https://reactjs.org/docs/cross-origin-errors.html
@@ -59,6 +60,11 @@ module.exports = webpackMerge(commonConfig({ env: ENV }), {
     }
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env': {
+          STELLAR_SERVER: `'${devConfig.server.stellar}'`
+      }
+    }),
     new BrowserSyncPlugin({
       host: 'localhost',
       port: 9000,

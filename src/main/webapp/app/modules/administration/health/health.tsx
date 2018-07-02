@@ -4,6 +4,9 @@ import { Translate } from 'react-jhipster';
 import { Table, Badge, Col, Row, Button } from 'reactstrap';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
+import StellarSdk from 'stellar-sdk';
+import { STELLAR_SERVER } from '../../../config/constants';
+
 import { IRootState } from 'app/shared/reducers';
 import { systemHealth } from '../administration.reducer';
 import HealthModal from './health-modal';
@@ -55,6 +58,9 @@ export class HealthPage extends React.Component<IHealthPageProps, IHealthPageSta
   render() {
     const { health, isFetching } = this.props;
     const data = (health || {}).details || {};
+    const stellarServerName = 'stellarServer';
+    const stellarServer = new StellarSdk.Server(STELLAR_SERVER);
+    const stellarServerStatus = stellarServer ? 'UP' : 'DOWN';
     return (
       <div>
         <h2 className="health-page-heading">Health Checks</h2>
@@ -95,6 +101,13 @@ export class HealthPage extends React.Component<IHealthPageProps, IHealthPageSta
                       </tr>
                     ) : null
                 )}
+                <tr>
+                  <td>{stellarServerName}</td>
+                  <td>
+                    <Badge color={stellarServerStatus !== 'UP' ? 'danger' : 'success'}>{stellarServerStatus}</Badge>
+                  </td>
+                  <td>{stellarServer ? JSON.stringify(stellarServer) : null}</td>
+                </tr>
               </tbody>
             </Table>
           </Col>

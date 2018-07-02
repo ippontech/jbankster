@@ -11,6 +11,7 @@ const commonConfig = require('./webpack.common.js');
 
 const ENV = 'production';
 const extractCSS = new ExtractTextPlugin(`content/[name].[hash].css`);
+const prodConfig = require('../application-prod.json');
 
 module.exports = webpackMerge(commonConfig({ env: ENV }), {
   // devtool: 'source-map', // Enable source maps. Please note that this will slow down the build
@@ -70,6 +71,11 @@ module.exports = webpackMerge(commonConfig({ env: ENV }), {
     ]
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env': {
+          STELLAR_SERVER: `'${prodConfig.server.stellar}'`
+      }
+    }),
     extractCSS,
     new MomentLocalesPlugin({
       localesToKeep: [
